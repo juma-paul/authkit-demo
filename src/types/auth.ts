@@ -27,3 +27,12 @@ export interface ApiError {
     message: string;
   };
 }
+
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refetchUser: () => Promise<void>;
+  validate2FA: (userId: string, code: string) => Promise<void>;
+}
