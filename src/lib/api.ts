@@ -91,7 +91,9 @@ api.interceptors.response.use(
           return Promise.reject(error);
 
         default:
-          window.location.href = "/login";
+          if (!originalRequest.url?.includes("/users/profile")) {
+            window.location.href = "/login";
+          }
           return Promise.reject(error);
       }
     }

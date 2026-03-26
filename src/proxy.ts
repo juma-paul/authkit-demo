@@ -10,14 +10,6 @@ const publicRoutes = [
   "/restore-account",
 ];
 
-const protectedRoutes = [
-  "/profile",
-  "/change-email",
-  "/change-password",
-  "/2fa",
-  "/delete-account",
-];
-
 export const proxy = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
@@ -36,5 +28,11 @@ export const proxy = (request: NextRequest) => {
 };
 
 export const config = {
-  matcher: protectedRoutes,
+  matcher: [
+    "/profile",
+    "/change-email",
+    "/change-password",
+    "/2fa",
+    "/delete-account",
+  ],
 };
