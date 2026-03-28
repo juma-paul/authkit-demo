@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const registerSchema = z
   .object({
@@ -65,24 +66,30 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Create Account</CardTitle>
+        <CardHeader className="text-center space-y-1">
+          <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
+          <p className="text-sm font-medium text-muted-foreground">
+            Create your account to get started
+          </p>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <CardContent className="px-6 pb-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <Controller
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <FieldLabel htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="email"
                     type="email"
                     placeholder="you@example.com"
+                    className="h-10"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -97,12 +104,18 @@ export default function RegisterPage() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel
+                    htmlFor="password"
+                    className="text-sm font-medium"
+                  >
+                    Password
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="password"
                     type="password"
                     placeholder="Min 8 characters"
+                    className="h-10"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -117,7 +130,10 @@ export default function RegisterPage() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmPassword">
+                  <FieldLabel
+                    htmlFor="confirmPassword"
+                    className="text-sm font-medium"
+                  >
                     Confirm Password
                   </FieldLabel>
                   <Input
@@ -125,6 +141,7 @@ export default function RegisterPage() {
                     id="confirmPassword"
                     type="password"
                     placeholder="Repeat password"
+                    className="h-10"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -140,12 +157,11 @@ export default function RegisterPage() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       id="termsAccepted"
                       checked={field.value ?? false}
-                      onChange={(e) =>
-                        field.onChange(e.target.checked || undefined)
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked || undefined)
                       }
                     />
                     <FieldLabel htmlFor="termsAccepted">
@@ -159,7 +175,11 @@ export default function RegisterPage() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full font-semibold"
+              disabled={isLoading}
+            >
               {isLoading ? "Creating account..." : "Register"}
             </Button>
 
