@@ -24,7 +24,12 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             {children}
-            <Toaster />
+            <Toaster
+              position="top-center"
+              duration={4000}
+              richColors
+              visibleToasts={3}
+            />
           </AuthProvider>
         </QueryProvider>
       </body>

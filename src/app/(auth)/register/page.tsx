@@ -4,7 +4,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Link from "next/link";
@@ -21,8 +20,8 @@ const registerSchema = z
     email: z.email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
-    termsAccepted: z.literal(true, {
-      error: "You must accept the terms and conditions",
+    termsAccepted: z.boolean().refine((val) => val === true, {
+      message: "You must accept the terms and conditions",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -33,8 +32,8 @@ const registerSchema = z
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -42,8 +41,9 @@ export default function RegisterPage() {
       email: "",
       password: "",
       confirmPassword: "",
-      termsAccepted: undefined,
+      termsAccepted: false,
     },
+    mode: "onSubmit",
   });
 
   const onSubmit = async (values: RegisterForm) => {
@@ -53,8 +53,7 @@ export default function RegisterPage() {
         "/auth/register",
         values,
       );
-      toast.success("Account created! Please verify your email.");
-      router.push("/login");
+      setSubmitted(true);
     } catch (err) {
       const error = err as AxiosError<ApiError>;
       toast.error(
@@ -65,8 +64,36 @@ export default function RegisterPage() {
     }
   };
 
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40 transition-opacity duration-300">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-10 pb-10 text-center space-y-4">
+            <div className="mx-auto w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl">
+              📬
+            </div>
+            <h2 className="text-2xl font-bold">Check your inbox</h2>
+            <p className="text-muted-foreground text-sm">
+              We sent a verification link to{" "}
+              <span className="font-medium text-foreground">
+                {form.getValues("email")}
+              </span>
+              . Click it to activate your account.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Already verified?{" "}
+              <Link href="/login" className="underline transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40 transition-opacity duration-300">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-1">
           <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
@@ -89,8 +116,7 @@ export default function RegisterPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="h-10"
-                    aria-invalid={fieldState.invalid}
+                    className="h-10 transition-all duration-200"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -115,8 +141,7 @@ export default function RegisterPage() {
                     id="password"
                     type="password"
                     placeholder="Min 8 characters"
-                    className="h-10"
-                    aria-invalid={fieldState.invalid}
+                    className="h-10 transition-all duration-200"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -141,8 +166,7 @@ export default function RegisterPage() {
                     id="confirmPassword"
                     type="password"
                     placeholder="Repeat password"
-                    className="h-10"
-                    aria-invalid={fieldState.invalid}
+                    className="h-10 transition-all duration-200"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -161,10 +185,10 @@ export default function RegisterPage() {
                       id="termsAccepted"
                       checked={field.value ?? false}
                       onCheckedChange={(checked) =>
-                        field.onChange(checked || undefined)
+                        field.onChange(checked === true)
                       }
                     />
-                    <FieldLabel htmlFor="termsAccepted">
+                    <FieldLabel htmlFor="termsAccepted" className="text-sm">
                       I accept the terms and conditions
                     </FieldLabel>
                   </div>
@@ -177,7 +201,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="w-full font-semibold"
+              className="w-full font-semibold transition-all duration-200"
               disabled={isLoading}
             >
               {isLoading ? "Creating account..." : "Register"}
@@ -185,8 +209,8 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="underline">
-                Login
+              <Link href="/login" className="underline transition-colors">
+                Sign in
               </Link>
             </p>
           </form>

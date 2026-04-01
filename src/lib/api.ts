@@ -37,6 +37,9 @@ const delay = (retryCount: number) =>
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
+  headers: {
+    "X-API-Key": process.env.NEXT_PUBLIC_API_KEY,
+  },
 });
 
 api.interceptors.response.use(
@@ -47,6 +50,8 @@ api.interceptors.response.use(
 
     const status = error.response?.status;
     const errorCode = (error.response?.data as APIErrorResponse)?.error?.code;
+    const errorMessage = (error.response?.data as APIErrorResponse)?.error
+      ?.message;
 
     originalRequest._retryCount = originalRequest._retryCount ?? 0;
 
@@ -59,6 +64,7 @@ api.interceptors.response.use(
       return api(originalRequest);
     }
 
+    // 401 Handling
     if (status === 401) {
       switch (errorCode) {
         case "TOKEN_EXPIRED":
@@ -70,16 +76,18 @@ api.interceptors.response.use(
                 .then(() => api(originalRequest))
                 .catch((err) => Promise.reject(err));
             }
+
             originalRequest._retry = true;
             isRefreshing = true;
+
             try {
               await api.post("/auth/refresh");
               processQueue(null);
               return api(originalRequest);
-            } catch (err) {
-              processQueue(err);
+            } catch (refreshErr) {
+              processQueue(refreshErr);
               window.location.href = "/login";
-              return Promise.reject(err);
+              return Promise.reject(refreshErr);
             } finally {
               isRefreshing = false;
             }
@@ -91,6 +99,10 @@ api.interceptors.response.use(
           return Promise.reject(error);
 
         default:
+          if (originalRequest.url?.includes("/auth/login")) {
+            return Promise.reject(error);
+          }
+
           if (!originalRequest.url?.includes("/users/profile")) {
             window.location.href = "/login";
           }
