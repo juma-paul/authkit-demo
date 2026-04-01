@@ -103,6 +103,10 @@ api.interceptors.response.use(
             return Promise.reject(error);
           }
 
+          if (originalRequest.url?.includes("/2fa")) {
+            return Promise.reject(error); 
+          }
+
           if (!originalRequest.url?.includes("/users/profile")) {
             window.location.href = "/login";
           }

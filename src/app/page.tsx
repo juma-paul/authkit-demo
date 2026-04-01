@@ -12,9 +12,9 @@ export default function Home() {
 
         <div className="space-y-6">
           <h1 className="text-3xl md:text-5xl font-bold tracking-tighter leading-tight">
-            Authentication,
+            Authentication
             <br />
-            done right.
+            System
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground">

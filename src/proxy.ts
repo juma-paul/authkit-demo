@@ -8,6 +8,7 @@ const publicRoutes = [
   "/forgot-password",
   "/reset-password",
   "/restore-account",
+  "/2fa",
 ];
 
 export const proxy = (request: NextRequest) => {

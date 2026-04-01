@@ -42,7 +42,7 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
       termsAccepted: false,
-    },
+    }, 
     mode: "onSubmit",
   });
 
