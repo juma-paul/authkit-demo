@@ -99,12 +99,11 @@ api.interceptors.response.use(
           return Promise.reject(error);
 
         default:
-          if (originalRequest.url?.includes("/auth/login")) {
+          if (
+            originalRequest.url?.includes("/auth/login") ||
+            originalRequest.url?.includes("/2fa")
+          ) {
             return Promise.reject(error);
-          }
-
-          if (originalRequest.url?.includes("/2fa")) {
-            return Promise.reject(error); 
           }
 
           if (!originalRequest.url?.includes("/users/profile")) {

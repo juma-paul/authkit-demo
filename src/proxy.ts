@@ -33,7 +33,6 @@ export const config = {
     "/profile",
     "/change-email",
     "/change-password",
-    "/2fa",
     "/delete-account",
   ],
 };
