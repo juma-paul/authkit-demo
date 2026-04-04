@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import ChangeEmailForm from "@/components/profile/ChangeEmailForm";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
+import TwoFAForm from "@/components/profile/TwoFAForm";
 
 const tabs = [
   { id: "change-email", icon: Mail, label: "Email" },
@@ -80,6 +81,7 @@ export default function ProfilePage() {
         <div className="rounded-2xl border bg-card p-6 shadow-sm min-h-50">
           {activeTab === "change-email" && <ChangeEmailForm />}
           {activeTab === "change-password" && <ChangePasswordForm />}
+          {activeTab === "2fa" && <TwoFAForm />}
         </div>
       </div>
     </div>

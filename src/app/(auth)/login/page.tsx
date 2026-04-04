@@ -3,8 +3,8 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Link from "next/link";
@@ -16,6 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
+const LOGOUT_REASONS: Record<string, string> = {
+  password_changed: "Your password was changed. Please log in with your new password.",
+  email_changed: "Your email was changed. Please log in with your new email.",
+  account_deleted: "Your account was deleted.",
+  session_expired: "Your session expired. Please log in again.",
+};
+
 const loginSchema = z.object({
   email: z.email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
@@ -25,8 +32,19 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refetchUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Show contextual message based on reason param
+  useEffect(() => {
+    const reason = searchParams.get("reason");
+    if (reason && LOGOUT_REASONS[reason]) {
+      toast.info(LOGOUT_REASONS[reason]);
+      // Clean up URL without reload
+      window.history.replaceState({}, "", "/login");
+    }
+  }, [searchParams]);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),

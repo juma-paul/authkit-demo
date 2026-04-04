@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { ApiError } from "@/types/auth";
@@ -12,9 +12,11 @@ type Status = "loading" | "success" | "error";
 
 export default function VerifyEmailChangePage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
   const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState("");
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     if (!token) {
@@ -33,6 +35,24 @@ export default function VerifyEmailChangePage() {
       });
   }, [token]);
 
+  // Auto-redirect to login after success
+  useEffect(() => {
+    if (status !== "success") return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          router.replace("/login?reason=email_changed");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [status, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
       <Card className="w-full max-w-md">
@@ -50,10 +70,11 @@ export default function VerifyEmailChangePage() {
               </div>
               <h2 className="text-2xl font-bold">Email Changed!</h2>
               <p className="text-sm text-muted-foreground">
-                Your email has been updated. Please sign in again.
+                Your email has been updated. Redirecting to login in{" "}
+                {countdown}...
               </p>
-              <Link href="/login" className="text-sm underline">
-                Sign in
+              <Link href="/login?reason=email_changed" className="text-sm underline">
+                Sign in now
               </Link>
             </>
           )}

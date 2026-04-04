@@ -21,7 +21,7 @@ const changeEmailSchema = z.object({
 type ChangeEmailForm = z.infer<typeof changeEmailSchema>;
 
 export default function ChangeEmailForm() {
-  const { refetchUser } = useAuth();
+  const { user, refetchUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ChangeEmailForm>({
@@ -31,6 +31,12 @@ export default function ChangeEmailForm() {
   });
 
   const onSubmit = async (values: ChangeEmailForm) => {
+    // Check if new email is same as current
+    if (user?.email && values.newEmail.toLowerCase() === user.email.toLowerCase()) {
+      toast.error("New email must be different from your current email");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await changeEmail(values.newEmail, values.password);
@@ -56,7 +62,8 @@ export default function ChangeEmailForm() {
       <div>
         <h2 className="text-base font-semibold">Change Email</h2>
         <p className="text-sm text-muted-foreground">
-          A verification link will be sent to your new email address.
+          A verification link will be sent to your new email address. You will
+          be logged out after verifying.
         </p>
       </div>
 

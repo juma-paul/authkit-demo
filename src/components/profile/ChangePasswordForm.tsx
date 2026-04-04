@@ -11,6 +11,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
 import { changePassword } from "@/lib/user.api";
+import { useAuth } from "@/providers/AuthProvider";
 
 const changePasswordSchema = z
   .object({
@@ -26,6 +27,7 @@ const changePasswordSchema = z
 type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordForm() {
+  const { logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ChangePasswordForm>({
@@ -46,14 +48,23 @@ export default function ChangePasswordForm() {
         values.newPassword,
         values.confirmPassword,
       );
-      toast.success("Password changed successfully");
-      form.reset();
+      toast.success("Password changed successfully. Redirecting to login...");
+
+      // Force logout - server revoked all refresh tokens
+      try {
+        await logout();
+      } catch {
+        // Ignore logout errors
+      }
+
+      // Delay to let user read the message
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      window.location.replace("/login?reason=password_changed");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
       const message =
         error.response?.data?.error?.message ?? "Failed to change password.";
       toast.error(message);
-    } finally {
       setIsLoading(false);
     }
   };

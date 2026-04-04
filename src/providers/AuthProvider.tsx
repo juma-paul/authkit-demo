@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "@/lib/api";
+import { toast } from "sonner";
 import { User, AuthContextType, APIResponse } from "@/types/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -9,6 +10,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   // Helper function to fetch user data
   const refetchUser = async () => {
     try {
@@ -24,6 +26,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Fetch user data on mount
   useEffect(() => {
     refetchUser().finally(() => setIsLoading(false));
+  }, []);
+
+  // Listen for rate limit events and show toast
+  useEffect(() => {
+    const handleRateLimit = (event: Event) => {
+      const customEvent = event as CustomEvent<{ retryAfter: number }>;
+      const seconds = customEvent.detail?.retryAfter || 30;
+      toast.error(`Too many requests. Please wait ${seconds} seconds.`);
+    };
+
+    window.addEventListener("rate-limited", handleRateLimit);
+    return () => window.removeEventListener("rate-limited", handleRateLimit);
   }, []);
 
   // Login
