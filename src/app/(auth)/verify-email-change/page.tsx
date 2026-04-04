@@ -2,42 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import api from "@/lib/api";
-import { APIResponse, ApiError } from "@/types/auth";
 import { AxiosError } from "axios";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ApiError } from "@/types/auth";
+import { verifyEmailChange } from "@/lib/user.api";
 import Link from "next/link";
 
-export default function VerifyEmailPage() {
+type Status = "loading" | "success" | "error";
+
+export default function VerifyEmailChangePage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading",
-  );
+  const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("No verification token found.");
+      setMessage("Invalid or missing token.");
       return;
     }
-    const verify = async () => {
-      try {
-        await api.post<APIResponse<{ message: string }>>("/auth/verify-email", {
-          token,
-        });
-        setStatus("success");
-      } catch (err) {
+    verifyEmailChange(token)
+      .then(() => setStatus("success"))
+      .catch((err) => {
         const error = err as AxiosError<ApiError>;
-        setStatus("error");
         setMessage(
-          error.response?.data?.error?.message ?? "Verification failed.",
+          error.response?.data?.error?.message ?? "Something went wrong.",
         );
-      }
-    };
-    verify();
+        setStatus("error");
+      });
   }, [token]);
 
   return (
@@ -46,9 +39,8 @@ export default function VerifyEmailPage() {
         <CardContent className="pt-10 pb-10 text-center space-y-4">
           {status === "loading" && (
             <>
-              <div className="text-5xl animate-pulse">⏳</div>
-              <h2 className="text-2xl font-bold">Verifying your email</h2>
-              <p className="text-sm text-muted-foreground">Please wait...</p>
+              <div className="text-3xl">⏳</div>
+              <h2 className="text-2xl font-bold">Verifying...</h2>
             </>
           )}
           {status === "success" && (
@@ -56,26 +48,25 @@ export default function VerifyEmailPage() {
               <div className="mx-auto w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl">
                 ✅
               </div>
-              <h2 className="text-2xl font-bold">Email Verified!</h2>
+              <h2 className="text-2xl font-bold">Email Changed!</h2>
               <p className="text-sm text-muted-foreground">
-                Your account is ready.
+                Your email has been updated. Please sign in again.
               </p>
-              <Button asChild className="w-full font-semibold mt-2">
-                <Link href="/login">Sign In Now</Link>
-              </Button>
+              <Link href="/login" className="text-sm underline">
+                Sign in
+              </Link>
             </>
           )}
           {status === "error" && (
             <>
               <div className="mx-auto w-14 h-14 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-2xl flex items-center justify-center text-3xl">
-                ❌
+                ⚠️
               </div>
               <h2 className="text-2xl font-bold">Verification Failed</h2>
-              <p className="text-sm text-destructive">{message}</p>
-
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/login">Go to Login</Link>
-              </Button>
+              <p className="text-sm text-muted-foreground">{message}</p>
+              <Link href="/login" className="text-sm underline">
+                Back to login
+              </Link>
             </>
           )}
         </CardContent>

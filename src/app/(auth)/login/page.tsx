@@ -43,13 +43,13 @@ export default function LoginPage() {
       >("/auth/login", values);
 
       if (data.data.requires2FA && data.data.userId) {
-        router.push(`/2fa?userId=${data.data.userId}`);
+        router.replace(`/2fa?userId=${data.data.userId}`);
         return;
       }
 
       await refetchUser();
       toast.success("Logged in successfully");
-      router.push("/profile");
+      router.replace("/chat");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
       const message =
@@ -58,7 +58,7 @@ export default function LoginPage() {
 
       toast.error(message);
 
-      form.setFocus("email");
+      form.setFocus("password");
     } finally {
       setIsLoading(false);
     }

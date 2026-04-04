@@ -101,14 +101,17 @@ api.interceptors.response.use(
         default:
           if (
             originalRequest.url?.includes("/auth/login") ||
-            originalRequest.url?.includes("/2fa")
+            originalRequest.url?.includes("/auth/verify-email") ||
+            originalRequest.url?.includes("/2fa") ||
+            originalRequest.url?.includes("/users/") ||
+            originalRequest.url?.includes("/auth/reset-password") ||
+            originalRequest.url?.includes("/auth/forgot-password") ||
+            originalRequest.url?.includes("/users/account/restore")
           ) {
             return Promise.reject(error);
           }
 
-          if (!originalRequest.url?.includes("/users/profile")) {
-            window.location.href = "/login";
-          }
+          window.location.href = "/login";
           return Promise.reject(error);
       }
     }

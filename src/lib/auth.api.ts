@@ -8,3 +8,6 @@ export const resetPassword = (
   newPassword: string,
   confirmPassword: string,
 ) => api.post("/auth/reset-password", { token, newPassword, confirmPassword });
+
+export const resendVerificationEmail = (email: string) =>
+  api.post("/auth/resend-verification", { email });

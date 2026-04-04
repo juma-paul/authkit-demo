@@ -54,7 +54,7 @@ export default function TwoFAPage() {
 
     try {
       await validate2FA(userId, values.code);
-      router.push("/profile");
+      router.replace("/chat");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
       const message =

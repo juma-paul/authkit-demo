@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
+import { resendVerificationEmail } from "@/lib/auth.api";
 
 const registerSchema = z
   .object({
@@ -34,6 +35,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -42,9 +44,21 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
       termsAccepted: false,
-    }, 
+    },
     mode: "onSubmit",
   });
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await resendVerificationEmail(form.getValues("email"));
+      toast.success("Verification email sent!");
+    } catch {
+      toast.error("Failed to resend. Please try again.");
+    } finally {
+      setResending(false);
+    }
+  };
 
   const onSubmit = async (values: RegisterForm) => {
     setIsLoading(true);
@@ -85,6 +99,15 @@ export default function RegisterPage() {
               <Link href="/login" className="underline transition-colors">
                 Sign in
               </Link>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-2"
+                onClick={handleResend}
+                disabled={resending}
+              >
+                {resending ? "Sending..." : "Resend Verification Email"}
+              </Button>
             </p>
           </CardContent>
         </Card>

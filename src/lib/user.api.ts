@@ -39,3 +39,6 @@ export const deleteAccount = (password: string) =>
 
 export const restoreAccount = (token: string) =>
   api.post("/users/account/restore", { token });
+
+export const verifyEmailChange = (token: string) =>
+  api.get(`/users/verify-email-change?token=${token}`);

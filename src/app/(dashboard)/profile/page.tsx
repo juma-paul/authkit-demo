@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Lock, ShieldCheck, Trash2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import ChangeEmailForm from "@/components/profile/ChangeEmailForm";
+
 const tabs = [
   { id: "change-email", icon: Mail, label: "Email" },
   { id: "change-password", icon: Lock, label: "Password" },
@@ -75,10 +77,7 @@ export default function ProfilePage() {
 
         {/* Active Form Area */}
         <div className="rounded-2xl border bg-card p-6 shadow-sm min-h-50">
-          <p className="text-muted-foreground text-sm">
-            Form for <span className="font-medium">{activeTab}</span> coming
-            soon...
-          </p>
+          {activeTab === "change-email" && <ChangeEmailForm />}
         </div>
       </div>
     </div>

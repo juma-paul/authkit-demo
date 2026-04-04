@@ -5,6 +5,7 @@ const publicRoutes = [
   "/login",
   "/register",
   "/verify-email",
+  "/verify-email-change",
   "/forgot-password",
   "/reset-password",
   "/restore-account",
@@ -22,17 +23,12 @@ export const proxy = (request: NextRequest) => {
   }
 
   if (isLoggedIn && isPublicRoute && pathname !== "/") {
-    return NextResponse.redirect(new URL("/profile", request.url));
+    return NextResponse.redirect(new URL("/chat", request.url));
   }
 
   return NextResponse.next();
 };
 
 export const config = {
-  matcher: [
-    "/profile",
-    "/change-email",
-    "/change-password",
-    "/delete-account",
-  ],
+  matcher: ["/chat", "/profile", "/profile/:path*"],
 };
