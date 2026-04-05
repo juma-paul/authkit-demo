@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { ApiError } from "@/types/auth";
-import { verifyEmailChange } from "@/lib/user.api";
+import { verifyEmailChange } from "@/app/api/user.api";
 import Link from "next/link";
 
 type Status = "loading" | "success" | "error";
@@ -70,10 +70,13 @@ export default function VerifyEmailChangePage() {
               </div>
               <h2 className="text-2xl font-bold">Email Changed!</h2>
               <p className="text-sm text-muted-foreground">
-                Your email has been updated. Redirecting to login in{" "}
-                {countdown}...
+                Your email has been updated. Redirecting to login in {countdown}
+                ...
               </p>
-              <Link href="/login?reason=email_changed" className="text-sm underline">
+              <Link
+                href="/login?reason=email_changed"
+                className="text-sm underline"
+              >
                 Sign in now
               </Link>
             </>

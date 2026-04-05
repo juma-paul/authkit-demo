@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
-import { changeEmail } from "@/lib/user.api";
+import { changeEmail } from "@/app/api/user.api";
 import { useAuth } from "@/providers/AuthProvider";
 
 const changeEmailSchema = z.object({
@@ -32,7 +32,10 @@ export default function ChangeEmailForm() {
 
   const onSubmit = async (values: ChangeEmailForm) => {
     // Check if new email is same as current
-    if (user?.email && values.newEmail.toLowerCase() === user.email.toLowerCase()) {
+    if (
+      user?.email &&
+      values.newEmail.toLowerCase() === user.email.toLowerCase()
+    ) {
       toast.error("New email must be different from your current email");
       return;
     }

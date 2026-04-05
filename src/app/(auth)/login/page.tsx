@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Link from "next/link";
-import api from "@/lib/api";
+import api from "@/app/api/api";
 import { APIResponse, ApiError, User } from "@/types/auth";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 const LOGOUT_REASONS: Record<string, string> = {
-  password_changed: "Your password was changed. Please log in with your new password.",
+  password_changed:
+    "Your password was changed. Please log in with your new password.",
   email_changed: "Your email was changed. Please log in with your new email.",
   account_deleted: "Your account was deleted.",
   session_expired: "Your session expired. Please log in again.",

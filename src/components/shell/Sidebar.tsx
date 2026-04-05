@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PlusCircle, MessageSquare, Settings } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, capitalize } from "@/lib/utils";
 
 const dummyChats = [
   { id: "1", title: "Morning routine habits", date: "Today" },
@@ -24,8 +24,10 @@ export default function Sidebar() {
   const router = useRouter();
   const [activeChat, setActiveChat] = useState("1");
 
-  const fullName =
-    `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || "User";
+  const firstName = capitalize(user?.first_name ?? undefined) ?? "";
+  const lastName = capitalize(user?.last_name ?? undefined) ?? "";
+
+  const fullName = `${firstName} ${lastName}`.trim() || "User";
 
   const initials =
     [user?.first_name?.[0], user?.last_name?.[0]]

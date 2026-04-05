@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import api from "@/lib/api";
+import api from "@/app/api/api";
 import { APIResponse, ApiError } from "@/types/auth";
 import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";

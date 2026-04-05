@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
-import { changePassword } from "@/lib/user.api";
+import { changePassword } from "@/app/api/user.api";
 import { useAuth } from "@/providers/AuthProvider";
 
 const changePasswordSchema = z

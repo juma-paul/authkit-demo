@@ -7,14 +7,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Link from "next/link";
-import api from "@/lib/api";
+import api from "@/app/api/api";
 import { APIResponse, ApiError } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
-import { resendVerificationEmail } from "@/lib/auth.api";
+import { resendVerificationEmail } from "@/app/api/auth.api";
 
 const registerSchema = z
   .object({

@@ -7,7 +7,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { AxiosError } from "axios";
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
-import { disable2FA, setup2FA, verify2FA } from "@/lib/user.api";
+import { disable2FA, setup2FA, verify2FA } from "@/app/api/user.api";
 import { Button } from "../ui/button";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
@@ -203,11 +203,7 @@ export default function TwoFAForm() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                variant="destructive"
-                disabled={isLoading}
-              >
+              <Button type="submit" variant="destructive" disabled={isLoading}>
                 {isLoading ? "Disabling..." : "Confirm Disable"}
               </Button>
             </div>

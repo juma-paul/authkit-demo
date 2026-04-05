@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import api from "@/app/api/api";
 
 // Profile
 export const getProfile = () => api.get("/users/profile");

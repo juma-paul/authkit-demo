@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
-import { forgotPassword } from "@/lib/auth.api";
+import { forgotPassword } from "@/app/api/auth.api";
 import Link from "next/link";
 
 const forgotPasswordSchema = z.object({
