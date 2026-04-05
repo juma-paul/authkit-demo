@@ -18,7 +18,6 @@ const tabs = [
   { id: "change-password", icon: Lock, label: "Password" },
   { id: "profile", icon: User, label: "Profile" },
   { id: "2fa", icon: ShieldCheck, label: "Two-Factor" },
-  { id: "restore-account", icon: RotateCcw, label: "Restore" },
 ];
 
 export default function ProfilePage() {
