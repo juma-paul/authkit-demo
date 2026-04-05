@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import api from "@/app/api/api";
+import api from "@/app/api/interceptor";
 import { toast } from "sonner";
 import { User, AuthContextType, APIResponse } from "@/types/auth";
 

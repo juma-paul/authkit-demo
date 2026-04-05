@@ -11,6 +11,7 @@ const PUBLIC_ROUTES = [
   "/reset-password",
   "/restore-account",
   "/2fa",
+  "/auth/callback",
 ];
 
 export function proxy(request: NextRequest) {
@@ -25,9 +26,6 @@ export function proxy(request: NextRequest) {
   if (!hasAccessToken && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
-
-  // Do NOT auto-redirect logged-in users
-  // This causes refresh loops
 
   return NextResponse.next();
 }

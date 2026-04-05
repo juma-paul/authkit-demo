@@ -57,23 +57,20 @@ const refreshClient = axios.create({
   },
 });
 
-// Public endpoints that should NEVER trigger redirect
+// Auth pages where 401 should NOT trigger redirect
+const AUTH_PAGES = ["/login", "/register", "/2fa", "/auth/callback"];
+
+// Public API endpoints
 const PUBLIC_ENDPOINTS = [
   "/auth/login",
+  "/auth/register",
   "/auth/refresh",
   "/auth/verify-email",
   "/auth/reset-password",
   "/auth/forgot-password",
-];
-
-// Protected endpoints where 401 means "validation failed", not "not authenticated"
-// These should show error messages, not redirect to login
-const NO_REDIRECT_ON_401 = [
-  "/users/2fa/verify",
-  "/users/2fa/disable",
-  "/users/2fa/setup",
-  "/users/change-email",
-  "/users/change-password",
+  "/auth/2fa/validate",
+  "/auth/resend-verification",
+  "/users/account/restore",
 ];
 
 api.interceptors.response.use(
@@ -139,15 +136,15 @@ api.interceptors.response.use(
         } catch (refreshError) {
           processQueue(refreshError);
 
-          // Only redirect if not already on login/register pages
-          if (
-            typeof window !== "undefined" &&
-            !redirectingToLogin &&
-            !window.location.pathname.startsWith("/login") &&
-            !window.location.pathname.startsWith("/register")
-          ) {
-            redirectingToLogin = true;
-            window.location.replace("/login?reason=session_expired");
+          // Only redirect if not already on auth pages
+          if (typeof window !== "undefined" && !redirectingToLogin) {
+            const isOnAuthPage = AUTH_PAGES.some((page) =>
+              window.location.pathname.startsWith(page),
+            );
+            if (!isOnAuthPage) {
+              redirectingToLogin = true;
+              window.location.replace("/login?reason=session_expired");
+            }
           }
 
           return Promise.reject(refreshError);
@@ -156,27 +153,26 @@ api.interceptors.response.use(
         }
       }
 
-      // For endpoints where 401 means "validation failed" (like wrong 2FA code),
-      // don't redirect - let the component handle the error
-      const isNoRedirectEndpoint = NO_REDIRECT_ON_401.some((url) =>
-        originalRequest.url?.includes(url),
-      );
-
-      if (isNoRedirectEndpoint) {
-        return Promise.reject(error);
+      // Other 401 → redirect once (but not if on auth pages)
+      if (typeof window !== "undefined" && !redirectingToLogin) {
+        const isOnAuthPage = AUTH_PAGES.some((page) =>
+          window.location.pathname.startsWith(page),
+        );
+        if (!isOnAuthPage) {
+          redirectingToLogin = true;
+          window.location.replace("/login?reason=session_expired");
+        }
       }
 
-      // Other 401 → redirect once (but not if already on auth pages)
-      if (
-        typeof window !== "undefined" &&
-        !redirectingToLogin &&
-        !window.location.pathname.startsWith("/login") &&
-        !window.location.pathname.startsWith("/register")
-      ) {
+      return Promise.reject(error);
+    }
+
+    // Handle 403 Account Deleted
+    if (status === 403 && errorCode === "ACCOUNT_DELETED") {
+      if (typeof window !== "undefined" && !redirectingToLogin) {
         redirectingToLogin = true;
-        window.location.replace("/login?reason=session_expired");
+        window.location.replace("/login?reason=account_deleted");
       }
-
       return Promise.reject(error);
     }
 
@@ -195,11 +191,11 @@ api.interceptors.response.use(
       }
 
       // Auto-retry after delay (only once per request)
-      if (!originalRequest._retry) {
-        originalRequest._retry = true;
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
-        return api(originalRequest);
-      }
+      // if (!originalRequest._retry) {
+      //   originalRequest._retry = true;
+      //   await new Promise((resolve) => setTimeout(resolve, waitTime));
+      //   return api(originalRequest);
+      // }
     }
 
     return Promise.reject(error);

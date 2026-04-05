@@ -1,4 +1,4 @@
-import api from "@/app/api/api";
+import api from "@/app/api/interceptor";
 
 // Profile
 export const getProfile = () => api.get("/users/profile");

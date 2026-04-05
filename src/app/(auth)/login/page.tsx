@@ -8,19 +8,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Link from "next/link";
-import api from "@/app/api/api";
+import api from "@/app/api/interceptor";
 import { APIResponse, ApiError, User } from "@/types/auth";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import OAuthButtons from "@/components/auth/OAuthButtons";
 
 const LOGOUT_REASONS: Record<string, string> = {
   password_changed:
     "Your password was changed. Please log in with your new password.",
   email_changed: "Your email was changed. Please log in with your new email.",
-  account_deleted: "Your account was deleted.",
+  account_deleted:
+    "Your account has been deleted. You can restore it within 30 days.",
   session_expired: "Your session expired. Please log in again.",
 };
 
@@ -167,6 +169,7 @@ export default function LoginPage() {
                 Register
               </Link>
             </p>
+            <OAuthButtons />
           </form>
         </CardContent>
       </Card>

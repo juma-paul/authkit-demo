@@ -7,7 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Link from "next/link";
-import api from "@/app/api/api";
+import api from "@/app/api/interceptor";
 import { APIResponse, ApiError } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { resendVerificationEmail } from "@/app/api/auth.api";
+import OAuthButtons from "@/components/auth/OAuthButtons";
 
 const registerSchema = z
   .object({
@@ -236,6 +237,7 @@ export default function RegisterPage() {
                 Sign in
               </Link>
             </p>
+            <OAuthButtons />
           </form>
         </CardContent>
       </Card>
