@@ -3,7 +3,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const twoFASchema = z.object({
 
 type TwoFAForm = z.infer<typeof twoFASchema>;
 
-export default function TwoFAPage() {
+function TwoFAContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
@@ -37,7 +37,6 @@ export default function TwoFAPage() {
     mode: "onSubmit",
   });
 
-  // Auto-focus on load
   useEffect(() => {
     if (userId) {
       setTimeout(() => document.getElementById("code")?.focus(), 150);
@@ -62,7 +61,6 @@ export default function TwoFAPage() {
         "Invalid 2FA code. Please try again.";
       toast.error(message);
 
-      // Clear input and refocus
       form.setValue("code", "");
       form.setFocus("code");
     } finally {
@@ -118,5 +116,19 @@ export default function TwoFAPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function TwoFAPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
+      <TwoFAContent />
+    </Suspense>
   );
 }
