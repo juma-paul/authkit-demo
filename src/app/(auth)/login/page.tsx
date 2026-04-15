@@ -3,7 +3,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -35,26 +35,22 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refetchUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Show contextual message based on reason param
   useEffect(() => {
     const reason = searchParams.get("reason");
     if (reason && LOGOUT_REASONS[reason]) {
-      // Dismiss any existing toasts to prevent stacking
       toast.dismiss();
-      // Small delay to ensure toast renders after page hydration
       setTimeout(() => {
         toast.info(LOGOUT_REASONS[reason], {
           id: `login-reason-${reason}`,
-          duration: 5000, // Show longer for important messages
+          duration: 5000,
         });
       }, 100);
-      // Clean up URL without reload
       window.history.replaceState({}, "", "/login");
     }
   }, [searchParams]);
@@ -80,14 +76,12 @@ export default function LoginPage() {
 
       await refetchUser();
       toast.success("Logged in successfully");
-      // Small delay to let user see the toast before navigation
       await new Promise((r) => setTimeout(r, 800));
       router.replace("/chat");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
       const status = error.response?.status;
 
-      // Skip toast for rate limit - AuthProvider handles it globally
       if (status === 429) {
         return;
       }
@@ -192,5 +186,19 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

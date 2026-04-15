@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
@@ -10,7 +10,7 @@ import { ApiError } from "@/types/auth";
 import Link from "next/link";
 import { restoreAccount } from "@/app/api/user.api";
 
-export default function RestoreAccountPage() {
+function RestoreAccountContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -79,5 +79,19 @@ export default function RestoreAccountPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function RestoreAccountPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
+          <Loader2 className="w-12 h-12 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <RestoreAccountContent />
+    </Suspense>
   );
 }

@@ -3,7 +3,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ const resetPasswordSchema = z
 
 type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -40,7 +40,6 @@ export default function ResetPasswordPage() {
     mode: "onSubmit",
   });
 
-  // Missing token state
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
@@ -65,7 +64,6 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // Success state
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
@@ -189,5 +187,19 @@ export default function ResetPasswordPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

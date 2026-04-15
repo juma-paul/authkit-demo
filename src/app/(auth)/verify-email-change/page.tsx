@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import Link from "next/link";
 
 type Status = "loading" | "success" | "error";
 
-export default function VerifyEmailChangePage() {
+function VerifyEmailChangeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -35,7 +35,6 @@ export default function VerifyEmailChangePage() {
       });
   }, [token]);
 
-  // Auto-redirect to login after success
   useEffect(() => {
     if (status !== "success") return;
 
@@ -96,5 +95,19 @@ export default function VerifyEmailChangePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function VerifyEmailChangePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted/40">
+          <div className="text-3xl">⏳</div>
+        </div>
+      }
+    >
+      <VerifyEmailChangeContent />
+    </Suspense>
   );
 }
