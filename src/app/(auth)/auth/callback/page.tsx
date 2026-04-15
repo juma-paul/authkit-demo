@@ -1,33 +1,94 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link";
 
 export default function AuthCallbackPage() {
-  const { refetchUser } = useAuth();
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const { refetchUser } = useAuth();
+
+  const [error, setError] = useState<string | null>(null);
+  const processedRef = useRef(false);
 
   useEffect(() => {
-    const run = async () => {
-      try {
-        // Wait for cookies to settle
-        await new Promise((r) => setTimeout(r, 1000));
+    // Prevent running multiple times
+    if (processedRef.current) return;
+    processedRef.current = true;
 
-        await refetchUser();
+    const success = searchParams.get("success");
+    const err = searchParams.get("error");
+    const message = searchParams.get("message");
 
-        router.replace("/chat");
-      } catch (error) {
-        router.replace("/login");
-      }
-    };
+    if (success === "true") {
+      (async () => {
+        try {
+          await refetchUser();
+          toast.success("Signed in successfully");
+          router.replace("/chat");
+        } catch {
+          toast.error("Failed to load user session");
+          router.replace("/login");
+        }
+      })();
+      return;
+    }
 
-    run();
-  }, [refetchUser, router]);
+    if (err) {
+      const msg = message || "Authentication failed";
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    setError("Invalid authentication response");
+  }, [searchParams, router, refetchUser]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <AlertCircle className="h-6 w-6 text-destructive" />
+            </div>
+
+            <CardTitle>Sign In Issue</CardTitle>
+
+            <CardDescription className="text-base whitespace-pre-line pt-3">
+              {error}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <Button asChild size="lg" className="w-full">
+              <Link href="/login">Back to Login</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      Completing sign in... Please wait
+    <div className="flex flex-col items-center justify-center h-screen gap-3">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+
+      <p className="text-lg font-medium">Completing sign in...</p>
+
+      <p className="text-sm text-muted-foreground">Please wait</p>
     </div>
   );
 }

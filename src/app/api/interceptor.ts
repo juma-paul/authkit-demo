@@ -18,6 +18,15 @@ const BASE_RETRY_DELAY = 500;
 let isRefreshing = false;
 let redirectingToLogin = false;
 
+// Safety timeout to reset redirect flag if navigation doesn't complete
+const setRedirecting = () => {
+  redirectingToLogin = true;
+  // Reset after 5s in case redirect fails (e.g., blocked by extension)
+  setTimeout(() => {
+    redirectingToLogin = false;
+  }, 5000);
+};
+
 let failedQueue: Array<{
   resolve: (value?: unknown) => void;
   reject: (reason?: unknown) => void;
@@ -58,7 +67,17 @@ const refreshClient = axios.create({
 });
 
 // Auth pages where 401 should NOT trigger redirect
-const AUTH_PAGES = ["/login", "/register", "/2fa", "/auth/callback"];
+const AUTH_PAGES = [
+  "/login",
+  "/register",
+  "/2fa",
+  "/auth/callback",
+  "/verify-email",
+  "/verify-email-change",
+  "/reset-password",
+  "/restore-account",
+  "/forgot-password",
+];
 
 // Public API endpoints
 const PUBLIC_ENDPOINTS = [
@@ -159,7 +178,7 @@ api.interceptors.response.use(
           window.location.pathname.startsWith(page),
         );
         if (!isOnAuthPage) {
-          redirectingToLogin = true;
+          setRedirecting();
           window.location.replace("/login?reason=session_expired");
         }
       }
@@ -167,10 +186,20 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle 403 Account Deleted
+    // Handle 403 Account Deleted (but not for login/register - let the form handle it)
     if (status === 403 && errorCode === "ACCOUNT_DELETED") {
+      const isAuthEndpoint = ["/auth/login", "/auth/register"].some((url) =>
+        originalRequest.url?.includes(url),
+      );
+
+      // For login/register, let the form show the error - don't redirect
+      if (isAuthEndpoint) {
+        return Promise.reject(error);
+      }
+
+      // For other endpoints (e.g., accessing protected routes), redirect to login
       if (typeof window !== "undefined" && !redirectingToLogin) {
-        redirectingToLogin = true;
+        setRedirecting();
         window.location.replace("/login?reason=account_deleted");
       }
       return Promise.reject(error);

@@ -104,6 +104,7 @@ export default function UpdateProfileForm() {
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-muted overflow-hidden flex items-center justify-center text-muted-foreground">
           {avatarPreview ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={avatarPreview}
               alt="avatar"

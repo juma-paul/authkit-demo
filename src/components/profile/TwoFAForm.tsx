@@ -123,6 +123,7 @@ export default function TwoFAForm() {
           </p>
 
           {qrCode && (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={qrCode}
               alt="2FA QR Code"
@@ -148,7 +149,7 @@ export default function TwoFAForm() {
                     inputMode="numeric"
                     maxLength={6}
                     placeholder="000000"
-                    className="h-12 text-center tracking-[0.5em] text-2xl font-mono"
+                    className="h-12 text-center tracking-[0.3em] sm:tracking-[0.5em] text-xl sm:text-2xl font-mono"
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -187,7 +188,7 @@ export default function TwoFAForm() {
                     inputMode="numeric"
                     maxLength={6}
                     placeholder="000000"
-                    className="h-12 text-center tracking-[0.5em] text-2xl font-mono"
+                    className="h-12 text-center tracking-[0.3em] sm:tracking-[0.5em] text-xl sm:text-2xl font-mono"
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -195,7 +196,7 @@ export default function TwoFAForm() {
                 </Field>
               )}
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -249,7 +250,7 @@ export default function TwoFAForm() {
               className="w-full"
               onClick={() => setShowBackupCodes(false)}
             >
-              I've saved my codes
+              I&apos;ve saved my codes
             </Button>
           </div>
         </div>

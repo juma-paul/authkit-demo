@@ -3,25 +3,35 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
+
 import { useAuth } from "@/providers/AuthProvider";
 import { deleteAccount } from "@/app/api/user.api";
+import { isOAuthUser } from "@/lib/auth-utils";
 
 export default function DangerZone() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const router = useRouter();
+
+  const isOAuth = isOAuthUser(user);
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const [password, setPassword] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     try {
       await logout();
+      toast.success("Signed out successfully");
+      await new Promise((r) => setTimeout(r, 1000));
       router.replace("/login");
     } catch {
       toast.error("Failed to sign out. Please try again.");
@@ -30,9 +40,23 @@ export default function DangerZone() {
 
   const handleDelete = async () => {
     setIsLoading(true);
+
     try {
-      await deleteAccount(password);
-      toast.success("Account deleted successfully.");
+      if (isOAuth) {
+        if (emailConfirm.toLowerCase() !== user?.email?.toLowerCase()) {
+          toast.error("Email does not match.");
+          return;
+        }
+        await deleteAccount();
+      } else {
+        await deleteAccount(password);
+      }
+
+      toast.success("Account deleted. Redirecting to login...", {
+        duration: 4000,
+      });
+      await new Promise((r) => setTimeout(r, 3500));
+      // Don't pass reason param since we already showed a toast
       router.replace("/login");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
@@ -106,20 +130,44 @@ export default function DangerZone() {
 
         {showDeleteConfirm && (
           <div className="space-y-3">
-            <Input
-              type="password"
-              placeholder="Enter your password to confirm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-10"
-            />
-            <div className="grid grid-cols-2 gap-3">
+            {/* Conditional input based on auth type */}
+            {!isOAuth ? (
+              <Input
+                type="password"
+                placeholder="Enter your password to confirm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-10"
+              />
+            ) : (
+              <div className="space-y-2">
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={emailConfirm}
+                  onChange={(e) => setEmailConfirm(e.target.value)}
+                  className="h-11 font-mono tracking-tight"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+
+                <p className="text-xs text-muted-foreground pl-1">
+                  Enter your email to confirm:{" "}
+                  <span className="font-mono text-foreground/70">
+                    {user?.email}
+                  </span>
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={() => {
                   setShowDeleteConfirm(false);
                   setPassword("");
+                  setEmailConfirm("");
                 }}
               >
                 Cancel
@@ -127,7 +175,12 @@ export default function DangerZone() {
               <Button
                 variant="destructive"
                 className="w-full"
-                disabled={!password || isLoading}
+                disabled={
+                  isOAuth
+                    ? emailConfirm.toLowerCase() !==
+                        user?.email?.toLowerCase() || isLoading
+                    : !password || isLoading
+                }
                 onClick={handleDelete}
               >
                 {isLoading ? "Deleting..." : "Confirm Delete"}

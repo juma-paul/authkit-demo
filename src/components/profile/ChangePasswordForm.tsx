@@ -11,7 +11,6 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
 import { changePassword } from "@/app/api/user.api";
-import { useAuth } from "@/providers/AuthProvider";
 
 const changePasswordSchema = z
   .object({
@@ -27,7 +26,6 @@ const changePasswordSchema = z
 type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordForm() {
-  const { logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ChangePasswordForm>({
@@ -41,6 +39,11 @@ export default function ChangePasswordForm() {
   });
 
   const onSubmit = async (values: ChangePasswordForm) => {
+    if (values.currentPassword === values.newPassword) {
+      toast.error("New password must be different from current password");
+      form.setFocus("newPassword")
+      return;
+    }
     setIsLoading(true);
     try {
       await changePassword(
@@ -48,18 +51,15 @@ export default function ChangePasswordForm() {
         values.newPassword,
         values.confirmPassword,
       );
-      toast.success("Password changed successfully. Redirecting to login...");
-
-      // Force logout - server revoked all refresh tokens
-      try {
-        await logout();
-      } catch {
-        // Ignore logout errors
-      }
+      toast.success("Password changed successfully. Redirecting to login...", {
+        duration: 4000,
+      });
 
       // Delay to let user read the message
+      // Note: Don't call logout() here as it clears user state and causes UI glitch
+      // The server already revoked tokens, and window.location.replace does full reload
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      window.location.replace("/login?reason=password_changed");
+      window.location.replace("/login");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
       const message =

@@ -1,15 +1,23 @@
+export type AuthProvider = "local" | "google" | "github";
+
 export interface User {
   id: string;
   tenant_id: string;
   email: string;
+
+  auth_provider: AuthProvider;
+
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
+
   email_verified: boolean;
   terms_accepted: boolean;
   two_factor_enabled: boolean;
+
   terms_accepted_at: string | null;
   last_login_at: string | null;
+
   created_at: string;
   updated_at: string;
 }

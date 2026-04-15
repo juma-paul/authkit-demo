@@ -23,6 +23,8 @@ const LOGOUT_REASONS: Record<string, string> = {
   email_changed: "Your email was changed. Please log in with your new email.",
   account_deleted:
     "Your account has been deleted. You can restore it within 30 days.",
+  account_deleted_success:
+    "Your account has been deleted successfully. You can restore it within 30 days by requesting a restoration link.",
   session_expired: "Your session expired. Please log in again.",
 };
 
@@ -43,7 +45,15 @@ export default function LoginPage() {
   useEffect(() => {
     const reason = searchParams.get("reason");
     if (reason && LOGOUT_REASONS[reason]) {
-      toast.info(LOGOUT_REASONS[reason]);
+      // Dismiss any existing toasts to prevent stacking
+      toast.dismiss();
+      // Small delay to ensure toast renders after page hydration
+      setTimeout(() => {
+        toast.info(LOGOUT_REASONS[reason], {
+          id: `login-reason-${reason}`,
+          duration: 5000, // Show longer for important messages
+        });
+      }, 100);
       // Clean up URL without reload
       window.history.replaceState({}, "", "/login");
     }
@@ -70,15 +80,23 @@ export default function LoginPage() {
 
       await refetchUser();
       toast.success("Logged in successfully");
+      // Small delay to let user see the toast before navigation
+      await new Promise((r) => setTimeout(r, 800));
       router.replace("/chat");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
+      const status = error.response?.status;
+
+      // Skip toast for rate limit - AuthProvider handles it globally
+      if (status === 429) {
+        return;
+      }
+
       const message =
         error.response?.data?.error?.message ??
         "Login failed. Please try again.";
 
       toast.error(message);
-
       form.setFocus("password");
     } finally {
       setIsLoading(false);

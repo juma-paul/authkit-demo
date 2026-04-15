@@ -34,8 +34,10 @@ export const disable2FA = (code: string) =>
   api.post("/users/2fa/disable", { code });
 
 // Account
-export const deleteAccount = (password: string) =>
-  api.delete("/users/account", { data: { password } });
+export const deleteAccount = (password?: string) =>
+  api.delete("/users/account", {
+    data: password ? { password } : {},
+  });
 
 export const restoreAccount = (token: string) =>
   api.post("/users/account/restore", { token });

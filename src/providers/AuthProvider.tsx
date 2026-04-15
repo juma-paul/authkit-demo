@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import api from "@/app/api/interceptor";
 import { toast } from "sonner";
 import { User, AuthContextType, APIResponse } from "@/types/auth";
@@ -11,8 +11,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Helper function to fetch user data
-  const refetchUser = async () => {
+  // Helper function to fetch user data - memoized to prevent infinite loops
+  const refetchUser = useCallback(async () => {
     try {
       const { data } =
         await api.get<APIResponse<{ user: User }>>("/users/profile");
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error(error);
       setUser(null);
     }
-  };
+  }, []);
 
   // Fetch user data on mount
   useEffect(() => {
