@@ -50,7 +50,7 @@ const delay = (retryCount: number) =>
 // Main API instance
 //
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api",
   withCredentials: true,
   headers: {
     "X-API-Key": process.env.NEXT_PUBLIC_API_KEY,
@@ -59,7 +59,7 @@ const api = axios.create({
 
 // Refresh-safe instance (NO interceptors)
 const refreshClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api",
   withCredentials: true,
   headers: {
     "X-API-Key": process.env.NEXT_PUBLIC_API_KEY,
