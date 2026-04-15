@@ -1,4 +1,4 @@
-# HabitMind Authentication System
+# AuthKit Demo — Interactive Auth Service Demo
 
 <div align="center">
 
