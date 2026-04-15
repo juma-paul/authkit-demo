@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -15,7 +15,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refetchUser } = useAuth();
@@ -24,7 +24,6 @@ export default function AuthCallbackPage() {
   const processedRef = useRef(false);
 
   useEffect(() => {
-    // Prevent running multiple times
     if (processedRef.current) return;
     processedRef.current = true;
 
@@ -64,14 +63,11 @@ export default function AuthCallbackPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
               <AlertCircle className="h-6 w-6 text-destructive" />
             </div>
-
             <CardTitle>Sign In Issue</CardTitle>
-
             <CardDescription className="text-base whitespace-pre-line pt-3">
               {error}
             </CardDescription>
           </CardHeader>
-
           <CardContent>
             <Button asChild size="lg" className="w-full">
               <Link href="/login">Back to Login</Link>
@@ -85,10 +81,24 @@ export default function AuthCallbackPage() {
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-3">
       <Loader2 className="h-6 w-6 animate-spin text-primary" />
-
       <p className="text-lg font-medium">Completing sign in...</p>
-
       <p className="text-sm text-muted-foreground">Please wait</p>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-screen gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p className="text-lg font-medium">Completing sign in...</p>
+          <p className="text-sm text-muted-foreground">Please wait</p>
+        </div>
+      }
+    >
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
