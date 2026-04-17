@@ -12,14 +12,14 @@ export default function Home() {
 
         <div className="space-y-6">
           <h1 className="text-3xl md:text-5xl font-bold tracking-tighter leading-tight">
-            Authentication
+            AuthKit
             <br />
-            System
+            <span className="text-muted-foreground">Demo</span>
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground">
-            A clean, production-ready auth system with email verification, 2FA,
-            and secure sessions.
+            Production-ready authentication with OAuth, 2FA, and secure session
+            management.
           </p>
         </div>
 
@@ -43,7 +43,15 @@ export default function Home() {
         </div>
 
         <p className="text-xs text-muted-foreground pt-6">
-          Demo client • No credit card required • Instant setup
+          Free to explore •{" "}
+          <a
+            href="https://github.com/juma-paul/authkit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground transition-colors"
+          >
+            Full source on GitHub
+          </a>
         </p>
       </div>
     </div>

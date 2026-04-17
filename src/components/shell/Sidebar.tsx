@@ -58,7 +58,7 @@ export default function Sidebar() {
       <div className="px-4 py-5 border-b flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight">AuthKit</h1>
-          <p className="text-xs text-muted-foreground">Auth Service Demo</p>
+          <p className="text-xs text-muted-foreground">Demo</p>
         </div>
         <Button
           variant="ghost"
