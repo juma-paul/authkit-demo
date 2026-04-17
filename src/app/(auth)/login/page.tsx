@@ -75,7 +75,7 @@ function LoginContent() {
       }
 
       await refetchUser();
-      toast.success("Logged in successfully");
+      toast.success("Logged in successfully", { duration: 800 });
       await new Promise((r) => setTimeout(r, 800));
       router.replace("/chat");
     } catch (err) {

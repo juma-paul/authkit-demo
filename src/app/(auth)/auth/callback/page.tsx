@@ -35,10 +35,12 @@ function AuthCallbackContent() {
       (async () => {
         try {
           await refetchUser();
-          toast.success("Signed in successfully");
+          toast.success("Signed in successfully", { duration: 1000 });
+          await new Promise((r) => setTimeout(r, 1000));
           router.replace("/chat");
         } catch {
-          toast.error("Failed to load user session");
+          toast.error("Failed to load user session", { duration: 1500 });
+          await new Promise((r) => setTimeout(r, 1500));
           router.replace("/login");
         }
       })();
