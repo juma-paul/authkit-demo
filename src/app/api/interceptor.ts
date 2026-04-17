@@ -155,12 +155,13 @@ api.interceptors.response.use(
         } catch (refreshError) {
           processQueue(refreshError);
 
-          // Only redirect if not already on auth pages
+          // Only redirect if not already on auth pages or public pages
           if (typeof window !== "undefined" && !redirectingToLogin) {
+            const isHomePage = window.location.pathname === "/";
             const isOnAuthPage = AUTH_PAGES.some((page) =>
               window.location.pathname.startsWith(page),
             );
-            if (!isOnAuthPage) {
+            if (!isOnAuthPage && !isHomePage) {
               redirectingToLogin = true;
               window.location.replace("/login?reason=session_expired");
             }
@@ -172,12 +173,13 @@ api.interceptors.response.use(
         }
       }
 
-      // Other 401 → redirect once (but not if on auth pages)
+      // Other 401 → redirect once (but not if on auth pages or public pages)
       if (typeof window !== "undefined" && !redirectingToLogin) {
+        const isHomePage = window.location.pathname === "/";
         const isOnAuthPage = AUTH_PAGES.some((page) =>
           window.location.pathname.startsWith(page),
         );
-        if (!isOnAuthPage) {
+        if (!isOnAuthPage && !isHomePage) {
           setRedirecting();
           window.location.replace("/login?reason=session_expired");
         }
