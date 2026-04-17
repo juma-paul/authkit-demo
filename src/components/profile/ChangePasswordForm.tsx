@@ -4,13 +4,12 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
 import { changePassword } from "@/app/api/user.api";
+import { showApiError } from "@/lib/utils";
 
 const changePasswordSchema = z
   .object({
@@ -61,10 +60,7 @@ export default function ChangePasswordForm() {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       window.location.replace("/login");
     } catch (err) {
-      const error = err as AxiosError<ApiError>;
-      const message =
-        error.response?.data?.error?.message ?? "Failed to change password.";
-      toast.error(message);
+      showApiError(err, "Failed to change password.");
       setIsLoading(false);
     }
   };

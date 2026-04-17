@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
+import { showApiError } from "@/lib/utils";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { deleteAccount } from "@/app/api/user.api";
@@ -59,10 +58,7 @@ export default function DangerZone() {
       // Don't pass reason param since we already showed a toast
       router.replace("/login");
     } catch (err) {
-      const error = err as AxiosError<ApiError>;
-      const message =
-        error.response?.data?.error?.message ?? "Failed to delete account.";
-      toast.error(message);
+      showApiError(err, "Failed to delete account.");
     } finally {
       setIsLoading(false);
     }

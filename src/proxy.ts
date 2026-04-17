@@ -19,11 +19,12 @@ export function proxy(request: NextRequest) {
 
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
-  // Check access token cookie
+  // Check cookies
   const hasAccessToken = request.cookies.has("accessToken");
+  const hasRefreshToken = request.cookies.has("refreshToken");
 
-  // If not logged in → protect private routes
-  if (!hasAccessToken && !isPublicRoute) {
+  // Only redirect if BOTH tokens missing
+  if (!hasAccessToken && !hasRefreshToken && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

@@ -4,13 +4,12 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useEffect } from "react";
-import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
 import { updateProfile } from "@/app/api/user.api";
+import { showApiError } from "@/lib/utils";
 import { useAuth } from "@/providers/AuthProvider";
 import { CldUploadWidget } from "next-cloudinary";
 import { User } from "lucide-react";
@@ -72,10 +71,7 @@ export default function UpdateProfileForm() {
       form.reset({ first_name: "", last_name: "", avatar_url: "" });
       await refetchUser();
     } catch (err) {
-      const error = err as AxiosError<ApiError>;
-      const message =
-        error.response?.data?.error?.message ?? "Failed to update profile.";
-      toast.error(message);
+      showApiError(err, "Failed to update profile.");
     } finally {
       setIsLoading(false);
     }

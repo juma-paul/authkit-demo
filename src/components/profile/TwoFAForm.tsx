@@ -4,10 +4,9 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useAuth } from "@/providers/AuthProvider";
-import { AxiosError } from "axios";
-import { ApiError } from "@/types/auth";
 import { toast } from "sonner";
 import { disable2FA, setup2FA, verify2FA } from "@/app/api/user.api";
+import { showApiError } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
@@ -51,10 +50,7 @@ export default function TwoFAForm() {
       setShowManual(false);
       setStep("setup");
     } catch (err) {
-      const error = err as AxiosError<ApiError>;
-      const message =
-        error.response?.data?.error?.message ?? "Failed to start 2FA setup.";
-      toast.error(message);
+      showApiError(err, "Failed to start 2FA setup.");
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +66,7 @@ export default function TwoFAForm() {
       form.reset();
       await refetchUser();
     } catch (err) {
-      const error = err as AxiosError<ApiError>;
-      const message =
-        error.response?.data?.error?.message ?? "Failed to verify 2FA.";
-      toast.error(message);
+      showApiError(err, "Failed to verify 2FA.");
     } finally {
       setIsLoading(false);
     }
@@ -88,10 +81,7 @@ export default function TwoFAForm() {
       await refetchUser();
       toast.success(data.data?.message);
     } catch (err) {
-      const error = err as AxiosError<ApiError>;
-      const message =
-        error.response?.data?.error?.message ?? "Failed to disable 2FA.";
-      toast.error(message);
+      showApiError(err, "Failed to disable 2FA.");
     } finally {
       setIsLoading(false);
     }

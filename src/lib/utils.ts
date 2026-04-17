@@ -1,8 +1,27 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { toast } from "sonner"
+import { isSessionExpiring } from "@/app/api/interceptor"
+import { AxiosError } from "axios"
+import { ApiError } from "@/types/auth"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+/**
+ * Show an API error toast, but suppress it if the user is being redirected to login.
+ * This prevents double toasts when session expires.
+ */
+export function showApiError(error: unknown, fallbackMessage: string): void {
+  // Don't show toast if interceptor is redirecting to login
+  if (isSessionExpiring()) {
+    return;
+  }
+
+  const axiosError = error as AxiosError<ApiError>;
+  const message = axiosError?.response?.data?.error?.message ?? fallbackMessage;
+  toast.error(message);
 }
 
 export const capitalize = (str?: string) =>

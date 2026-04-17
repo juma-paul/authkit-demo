@@ -18,13 +18,25 @@ const BASE_RETRY_DELAY = 500;
 let isRefreshing = false;
 let redirectingToLogin = false;
 
+// Flag to suppress component-level error toasts when redirecting to login
+// Components should check this before showing error toasts
+export const isSessionExpiring = () =>
+  typeof window !== "undefined" && (window as any).__sessionExpiring === true;
+
 // Safety timeout to reset redirect flag if navigation doesn't complete
 const setRedirecting = () => {
   redirectingToLogin = true;
-  // Reset after 5s in case redirect fails (e.g., blocked by extension)
+  // Set flag to suppress component error toasts
+  if (typeof window !== "undefined") {
+    (window as any).__sessionExpiring = true;
+  }
+  // Reset after 3s in case redirect fails (e.g., blocked by extension)
   setTimeout(() => {
     redirectingToLogin = false;
-  }, 5000);
+    if (typeof window !== "undefined") {
+      (window as any).__sessionExpiring = false;
+    }
+  }, 3000);
 };
 
 let failedQueue: Array<{
@@ -132,8 +144,15 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Token expired → refresh FIRST (before other 401 checks)
-      if (errorCode === "TOKEN_EXPIRED" && !originalRequest._retry) {
+      // Attempt refresh for:
+      // - TOKEN_EXPIRED: JWT expired but cookie still exists
+      // - UNAUTHORIZED: Cookie expired (browser deleted it), but refresh token may still be valid
+      // Skip if this is already a retry attempt
+      const shouldAttemptRefresh =
+        (errorCode === "TOKEN_EXPIRED" || errorCode === "UNAUTHORIZED") &&
+        !originalRequest._retry;
+
+      if (shouldAttemptRefresh) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -162,7 +181,7 @@ api.interceptors.response.use(
               window.location.pathname.startsWith(page),
             );
             if (!isOnAuthPage && !isHomePage) {
-              redirectingToLogin = true;
+              setRedirecting();
               window.location.replace("/login?reason=session_expired");
             }
           }
@@ -173,7 +192,7 @@ api.interceptors.response.use(
         }
       }
 
-      // Other 401 → redirect once (but not if on auth pages or public pages)
+      // Other 401 (e.g., invalid token, not expired) → redirect once
       if (typeof window !== "undefined" && !redirectingToLogin) {
         const isHomePage = window.location.pathname === "/";
         const isOnAuthPage = AUTH_PAGES.some((page) =>
