@@ -52,7 +52,7 @@ export default function ChangePasswordForm() {
         values.confirmPassword,
       );
       toast.success("Password changed successfully. Redirecting to login...", {
-        duration: 4000,
+        duration: 3000,
       });
 
       // Delay to let user read the message

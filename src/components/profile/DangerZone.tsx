@@ -30,7 +30,7 @@ export default function DangerZone() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success("Signed out successfully");
+      toast.success("Signed out successfully", { duration: 1000 });
       await new Promise((r) => setTimeout(r, 1000));
       router.replace("/login");
     } catch {
@@ -53,7 +53,7 @@ export default function DangerZone() {
       }
 
       toast.success("Account deleted. Redirecting to login...", {
-        duration: 4000,
+        duration: 3500,
       });
       await new Promise((r) => setTimeout(r, 3500));
       // Don't pass reason param since we already showed a toast

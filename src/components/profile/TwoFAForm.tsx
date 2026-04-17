@@ -28,6 +28,8 @@ export default function TwoFAForm() {
   const isEnabled = user?.two_factor_enabled ?? false;
 
   const [qrCode, setQrCode] = useState("");
+  const [secret, setSecret] = useState("");
+  const [showManual, setShowManual] = useState(false);
   const [step, setStep] = useState<TwoFactorStep>("idle");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,6 +47,8 @@ export default function TwoFAForm() {
     try {
       const { data } = await setup2FA();
       setQrCode(data.data.qrCode);
+      setSecret(data.data.secret);
+      setShowManual(false);
       setStep("setup");
     } catch (err) {
       const error = err as AxiosError<ApiError>;
@@ -118,18 +122,52 @@ export default function TwoFAForm() {
       {step === "setup" && (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Scan this QR code with your authenticator app, then enter the
-            6-digit code below.
+            {showManual
+              ? "Enter this secret key in your authenticator app, then enter the 6-digit code below."
+              : "Scan this QR code with your authenticator app, then enter the 6-digit code below."}
           </p>
 
-          {qrCode && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={qrCode}
-              alt="2FA QR Code"
-              className="w-40 h-40 rounded-lg"
-            />
+          {showManual ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-muted px-4 py-3 rounded-lg font-mono text-sm break-all select-all">
+                  {secret}
+                </code>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(secret);
+                    toast.success("Secret copied!");
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                In your authenticator app, select &quot;Enter key manually&quot;
+                or &quot;Enter setup key&quot; and paste this code.
+              </p>
+            </div>
+          ) : (
+            qrCode && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={qrCode}
+                alt="2FA QR Code"
+                className="w-40 h-40 rounded-lg"
+              />
+            )
           )}
+
+          <button
+            type="button"
+            className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+            onClick={() => setShowManual(!showManual)}
+          >
+            {showManual ? "Show QR code instead" : "Can't scan? Enter manually"}
+          </button>
 
           <form
             onSubmit={form.handleSubmit(handleVerify)}
