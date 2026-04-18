@@ -141,7 +141,7 @@ export default function DangerZone() {
                   type="email"
                   placeholder="your@email.com"
                   value={emailConfirm}
-                  onChange={(e) => setEmailConfirm(e.target.value)}
+                  onChange={(e) => setEmailConfirm(e.target.value.toLowerCase())}
                   className="h-11 font-mono tracking-tight"
                   autoComplete="off"
                   spellCheck={false}

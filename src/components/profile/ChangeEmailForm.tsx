@@ -74,8 +74,9 @@ export default function ChangeEmailForm() {
             <FieldLabel htmlFor="newEmail">New Email Address</FieldLabel>
             <Input
               {...field}
+              onChange={(e) => field.onChange(e.target.value.toLowerCase())}
               id="newEmail"
-              type="text"
+              type="email"
               placeholder="you@example.com"
               className="h-11"
             />

@@ -1,23 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import { useSidebar } from "@/providers/SidebarProvider";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PlusCircle, MessageSquare, Settings, X, User2 } from "lucide-react";
+import { PlusCircle, Settings, X, User2 } from "lucide-react";
 import Link from "next/link";
-import { cn, capitalize, generateDisplayName } from "@/lib/utils";
+import { capitalize, generateDisplayName } from "@/lib/utils";
 
-const dummyChats = [
-  { id: "1", title: "Register & verify email", date: "Features" },
-  { id: "2", title: "Login with Google or GitHub", date: "Features" },
-  { id: "3", title: "Two-factor authentication", date: "Features" },
-  { id: "4", title: "Change email & password", date: "Features" },
-  { id: "5", title: "Soft delete & restore account", date: "Features" },
-  { id: "6", title: "Multi-tenant API key system", date: "Features" },
+const features = [
+  "- Register & verify email",
+  "- Login with Google or GitHub",
+  "- Two-factor authentication",
+  "- Change email & password",
+  "- Soft delete & restore account",
+  "- Multi-tenant API key system",
 ];
 
 export default function Sidebar() {
@@ -25,7 +25,6 @@ export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isOpen, close } = useSidebar();
-  const [activeChat, setActiveChat] = useState("1");
 
   useEffect(() => {
     close();
@@ -42,15 +41,6 @@ export default function Sidebar() {
       .filter(Boolean)
       .join("")
       .toUpperCase() || null;
-
-  const grouped = dummyChats.reduce(
-    (acc, chat) => {
-      if (!acc[chat.date]) acc[chat.date] = [];
-      acc[chat.date].push(chat);
-      return acc;
-    },
-    {} as Record<string, typeof dummyChats>,
-  );
 
   const sidebarContent = (
     <div className="flex flex-col h-full w-64 border-r bg-muted/30">
@@ -82,29 +72,22 @@ export default function Sidebar() {
       </div>
 
       {/* Features List */}
-      <ScrollArea className="flex-1 px-2">
-        {Object.entries(grouped).map(([date, chats]) => (
-          <div key={date} className="mb-4">
-            <p className="text-xs text-muted-foreground font-medium px-2 mb-1">
-              {date}
-            </p>
-            {chats.map((chat) => (
-              <button
-                key={chat.id}
-                onClick={() => setActiveChat(chat.id)}
-                className={cn(
-                  "w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors",
-                  activeChat === chat.id
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground",
-                )}
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground font-medium mb-2">
+            Features
+          </p>
+          <ul className="space-y-1.5">
+            {features.map((feature) => (
+              <li
+                key={feature}
+                className="text-sm text-muted-foreground leading-relaxed"
               >
-                <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{chat.title}</span>
-              </button>
+                {feature}
+              </li>
             ))}
-          </div>
-        ))}
+          </ul>
+        </div>
       </ScrollArea>
 
       {/* User Footer */}

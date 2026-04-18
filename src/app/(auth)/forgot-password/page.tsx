@@ -99,6 +99,7 @@ export default function ForgotPasswordPage() {
                   </FieldLabel>
                   <Input
                     {...field}
+                    onChange={(e) => field.onChange(e.target.value.toLowerCase())}
                     id="email"
                     type="email"
                     placeholder="you@example.com"
