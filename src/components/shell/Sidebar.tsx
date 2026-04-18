@@ -12,12 +12,12 @@ import Link from "next/link";
 import { capitalize, generateDisplayName } from "@/lib/utils";
 
 const features = [
-  "- Register & verify email",
-  "- Login with Google or GitHub",
-  "- Two-factor authentication",
-  "- Change email & password",
-  "- Soft delete & restore account",
-  "- Multi-tenant API key system",
+  "Register & verify email",
+  "Login with Google or GitHub",
+  "Two-factor authentication",
+  "Change email & password",
+  "Soft delete & restore account",
+  "Multi-tenant API key system",
 ];
 
 export default function Sidebar() {
@@ -81,8 +81,9 @@ export default function Sidebar() {
             {features.map((feature) => (
               <li
                 key={feature}
-                className="text-sm text-muted-foreground leading-relaxed"
+                className="text-sm text-muted-foreground leading-relaxed flex items-center gap-2"
               >
+                <span className="w-1 h-1 rounded-full bg-muted-foreground/50 shrink-0" />
                 {feature}
               </li>
             ))}
